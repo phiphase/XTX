@@ -9,33 +9,41 @@
 clc;
 close all;
 clear;
-RandStream.setDefaultStream(RandStream('mt19937ar','seed', 12345));
+% For MATLAB 2010a
+%RandStream.setDefaultStream(RandStream('mt19937ar','seed', 12345));
 
-Nsym = 200;
+% For MATLAB 2021a
+%RandStream('mt19937ar','Seed', 12345);
+rng(12345);
 
+
+% p is the structure that holds the pulse_shaper parameters
 %p.ft = 'Square Root Raised Cosine';
 p.ft = 'Raised Cosine';
-p.Rs = 230;
-p.Fs = 500;     % output sample rate
-p.OSR = 8;      % Over-sampling ratio of the stored waveform.
-p.Ns =  8;      % Number of symbols in the response
-p.Nstr = 2;     % Number of processing streams
+p.Rs = 230;                          % Default output Symbol Rate
+p.Fs = 500;                          % Default output sample rate
+p.OSR = 8;                           % OSR of the stored waveform.
+p.Ns =  8;                           % Number of symbols in the response
+p.Nstr = 2;                          % Number of processing streams
 p.alpha = 0.35;
 p.qOffset = 0;
-p.pst = exp(1i*pi/4*(0:7)');
-p.doutFilename = 'dout.golden.dat';
-p.dinFilename = 'din.dat';
+p.pst = exp(1i*pi/4*(0:7)');         % Input phase references
+p.doutFilename = 'dout.golden.dat';  % Golden reference output file
+p.dinFilename = 'din.dat';           %  Input samples
 p.genDatFile = true;
-analyseFile = false;
+
+analyseHWFile = true;                % Enables analysis of H/W output file.
+Nsym = 200;                         % Number of symbols
 gain = 1.0;
-Qgain = 8;  % Number of bits for gain quantisation
+Qgain = 8;                          % Number of bits for gain quantisation
 p.gain = round((2^Qgain)*gain)/(2^Qgain);  % Quantise the gain.
 
 % Read the hardware output data for comparison with the MATLAB generated data.
-if analyseFile
- disp('Analysing file');
- hw_dout_filename = 'Z:/XTX/FPGA/PRK/pulse_shaper/solution1/csim/build/hw_dout.dat';
- hw_dout = dlmread(hw_dout_filename,'\t');
+if analyseHWFile
+ disp('Analysing H/W output file');
+ hw_dout_filename = ['../FPGA/PRJ/pulse_shaper/solution1/csim/build/' ...
+                     'hw_dout.dat'];
+ hw_dout = dlmread(hw_dout_filename);
  hw_y = complex(hw_dout(:,1), hw_dout(:,2));
 end
    
@@ -44,9 +52,9 @@ end
 % symQ = [1; zeros(Nsym-1,1)];
 % sym = complex(symI, symQ);
 
-% Phase state mapping table for QPSK/OQPSK
-psQPSK = [1; 7; 3; 5];
-%p.qOffset = p.OSR/2;          % For QPSK/8PSK
+
+psQPSK = [1; 7; 3; 5];          % Phase state mapping table for QPSK/OQPSK
+%p.qOffset = p.OSR/2;           % For QPSK/8PSK
 
 % Symbols: QPSK/OQPSK
  %s = randi([0 3], Nsym, 1);
@@ -56,8 +64,6 @@ psQPSK = [1; 7; 3; 5];
 
 % Symbols: 8PSK
 sym = randi([0 7],Nsym,1);
-
-
 
 
 fprintf('Testbench for interp_filt\n');
@@ -72,7 +78,8 @@ fprintf('Filter has %d coefficients\n', p.OSR*p.Ns);
 y = y(:);
 
 % Comparison using conventional pulse-shaping and linear interpolation.
-% xf is the filtered symbols at the FTF symbol rate, R0 i.e. prior to interpolation up to Rs.
+% xf is the filtered symbols at the FTF symbol rate, R0 i.e. prior to
+% interpolation up to Rs.
 errTol = 1e-4;
 t0 = (0:Nsym*p.OSR-1)';
 ts = t0*(p.Rs*p.OSR/p.Fs);
@@ -100,7 +107,7 @@ end
 % legend('y','yref', 'difference > errTol');
 % hold off;
 
-if analyseFile
+if analyseHWFile
     y = hw_y(1:length(y));   
 end
 
@@ -127,8 +134,8 @@ ydq(ydi > 1.0) = 1;
 ydi(ydi < -1.0) = -1;
 ydq(ydi < -1.0) = -1;
 
-% Perform cross-correlation to align received and reference data. This is done for I and Q
-% individually so that OQPSK can be handled.
+% Perform cross-correlation to align received and reference data.
+% This is done for I and Q individually so that OQPSK can be handled.
 sd = p.gain * p.pst(sym+1);
 len = length(ydi);
 [~, i] =max(abs(xcorr(ydi,real(sd(1:len)))));

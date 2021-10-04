@@ -39,6 +39,9 @@ void pulse_shaper_top(hls::stream<din_t> din[FSZ_DIN],
                       bool oqpsk,
                       bool alpha);
 
+/****************************************************************************************************
+ * THE TEST-BENCH
+ ***************************************************************************************************/
 int main(int argc, char* argv[])
 {
 
@@ -51,7 +54,7 @@ int main(int argc, char* argv[])
 	gain_t gain = gain_t(1.0);             // Gain control input
 	cplx_vector_t sw_result;
 	cplx_vector_t hw_result;
-	unsigned err_cnt = 0;
+	unsigned int err_cnt = 0;
 	bool oqpsk = false;
 	bool alpha = ALPHA_0p35;
 
@@ -71,7 +74,6 @@ int main(int argc, char* argv[])
 		}
 		i++;
 	}
-
 
 	if (din_ifs.bad())
 	{
