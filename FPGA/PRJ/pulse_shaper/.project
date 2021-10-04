@@ -42,11 +42,6 @@
 			<location>/home/phiphase/git/XTX/FPGA/PRJ/pulse_shaper/solution1/.tcls</location>
 		</link>
 		<link>
-			<name>source/coeff_table.h</name>
-			<type>1</type>
-			<location>/home/phiphase/git/XTX/FPGA/SRC/pulse_shaper/coeff_table.h</location>
-		</link>
-		<link>
 			<name>source/pulse_shaper.h</name>
 			<type>1</type>
 			<location>/home/phiphase/git/XTX/FPGA/SRC/pulse_shaper/pulse_shaper.h</location>

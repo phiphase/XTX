@@ -15,7 +15,7 @@ entity tb_xtx_top is
 end tb_xtx_top;
 
 architecture bench of tb_xtx_top is
-constant PATH : string := "Z:/XTX/FPGA/PRJ/pulse_shaper/solution1/csim/build/";
+constant PATH : string := "/home/phiphase/git/XTX/FPGA/PRJ/pulse_shaper/solution1/csim/build/";
 constant DIN_FILENAME : string := "din.dat";
 constant REF_FILENAME : string := "hw_dout.dat";
 constant DOUT_FILENAME : string :="rtl_dout.dat";
